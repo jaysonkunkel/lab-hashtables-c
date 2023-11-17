@@ -41,9 +41,9 @@ public class ChainedHashTable<K,V> implements HashTable<K,V> {
    * 
    * Bugs to squash.
    * 
-   * [ ] Doesn't check for repeated keys in `set`.
+   * [] Doesn't check for repeated keys in `set`.
    * 
-   * [ ] Doesn't look for matching key in `get`.
+   * [] Doesn't look for matching key in `get`.
    * 
    * [ ] Doesn't handle collisions.
    * 
@@ -205,6 +205,7 @@ public class ChainedHashTable<K,V> implements HashTable<K,V> {
       alist = new ArrayList<Pair<K,V>>();
       this.buckets[index] = alist;
     }
+    
     alist.add(new Pair<K,V>(key, value));
     ++this.size;
 

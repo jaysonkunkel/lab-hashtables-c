@@ -39,9 +39,9 @@ public class ProbedHashTable<K,V> implements HashTable<K,V> {
    * 
    * Bugs to squash.
    * 
-   * [ ] Doesn't check for repeated keys in set.
+   * [X] Doesn't check for repeated keys in set.
    * 
-   * [ ] Doesn't check for matching key in get.
+   * [X] Doesn't check for matching key in get.
    * 
    * [ ] Doesn't handle collisions.
    * 
@@ -168,6 +168,11 @@ public class ProbedHashTable<K,V> implements HashTable<K,V> {
       if (REPORT_BASIC_CALLS && (reporter != null)) {
         reporter.report("get(" + key + ") => " + pair.value());
       } // if reporter != null
+       //pair = pair.key();
+      if((key != pair.key()))
+       {
+        return null;
+       }
       return pair.value();
     } // get
   } // get(K)
@@ -198,12 +203,24 @@ public class ProbedHashTable<K,V> implements HashTable<K,V> {
     if (this.size > (this.pairs.length * LOAD_FACTOR)) {
       expand();
     } // if there are too many entries
+
     // Find out where the key belongs and put the pair there.
     int index = find(key);
+
     if (this.pairs[index] != null) {
-      result = ((Pair<K,V>) this.pairs[index]).value();
+      if(((Pair<K,V>) this.pairs[index]).key() == key){
+        while(this.pairs[index] != null){
+          result = ((Pair<K,V>) this.pairs[index]).value();
+          index++;
+        }
+      }
     } // if
+
     this.pairs[index] = new Pair<K,V>(key, value);
+
+    
+
+
     // Report activity, if appropriate
     if (REPORT_BASIC_CALLS && (reporter != null)) {
       reporter.report("pairs[" + index + "] = " + key + ":" + value);
@@ -320,8 +337,17 @@ public class ProbedHashTable<K,V> implements HashTable<K,V> {
    * Find the index of the entry with a given key. If there is no such entry,
    * return the index of an entry we can use to store that key.
    */
-  int find(K key) {
-    return Math.abs(key.hashCode()) % this.pairs.length;
+  int find(K key) { 
+    int index = Math.abs(key.hashCode()) % this.pairs.length;
+    //System.err.println(this.pairs.length);
+    
+    Pair<K,V> pair = (Pair<K,V>) this.pairs[index];
+    while(this.pairs[index] != null && pair.key() != key){
+        index = ((index + (int) PROBE_OFFSET)) % this.pairs.length;
+        pair = (Pair<K,V>) this.pairs[index];
+    }
+
+    return index;
   } // find(K)
 
 } // class ProbedHashTable<K,V>
