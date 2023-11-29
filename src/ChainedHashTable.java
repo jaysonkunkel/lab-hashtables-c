@@ -43,7 +43,7 @@ public class ChainedHashTable<K,V> implements HashTable<K,V> {
    * 
    * [] Doesn't check for repeated keys in `set`.
    * 
-   * [] Doesn't look for matching key in `get`.
+   * [X] Doesn't look for matching key in `get`.
    * 
    * [ ] Doesn't handle collisions.
    * 
@@ -162,11 +162,26 @@ public class ChainedHashTable<K,V> implements HashTable<K,V> {
       } // if reporter != null
       throw new IndexOutOfBoundsException("Invalid key: " + key);
     } else {
+      //check if keys are the same
+   
       Pair<K,V> pair = alist.get(0);
+      for(Pair<K,V> p: alist){
+        if (p.key().equals(key)) {
+          return p.value();
+        }
+      }
+
       if (REPORT_BASIC_CALLS && (reporter != null)) {
         reporter.report("get(" + key + ") => " + pair.value());
       } // if reporter != null
-      return pair.value();
+
+      return null;
+
+      // if (pair.key().equals(key)) {
+      //   return pair.value();
+      // }else {
+      //   return alist.get(1).value();
+      // }
     } // get
   } // get(K)
 
@@ -204,11 +219,20 @@ public class ChainedHashTable<K,V> implements HashTable<K,V> {
     if (alist == null) {
       alist = new ArrayList<Pair<K,V>>();
       this.buckets[index] = alist;
+      alist.add(new Pair<K,V>(key, value));
+      ++this.size;
+    } else {
+      for (int i = 0; i < alist.size(); i++ ) {
+        Pair<K,V> pair = alist.get(i);
+        if (pair.key().equals(key)) {
+          alist.set(i,new Pair<K,V>(key, value));
+          return value;
+        }
+      } //for
+      alist.add(new Pair<K,V>(key, value));
+      ++this.size;
     }
     
-    alist.add(new Pair<K,V>(key, value));
-    ++this.size;
-
     // Report activity, if appropriate
     if (REPORT_BASIC_CALLS && (reporter != null)) {
       reporter.report("adding '" + key + ":" + value + "' to bucket " + index);
