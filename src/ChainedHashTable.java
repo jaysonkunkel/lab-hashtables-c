@@ -239,7 +239,7 @@ public class ChainedHashTable<K,V> implements HashTable<K,V> {
     } // if reporter != null
 
     // And we're done
-    return result;
+    return value;
   } // set(K,V)
 
   /**
@@ -329,11 +329,24 @@ public class ChainedHashTable<K,V> implements HashTable<K,V> {
    */
   void expand() {
     // Figure out the size of the new table
+    System.err.print("expanding");
     int newSize = 2 * this.buckets.length + rand.nextInt(10);
     if (REPORT_BASIC_CALLS && (reporter != null)) {
       reporter.report("Expanding to " + newSize + " elements.");
     } // if reporter != null
-    // STUB
+    // Remember the old table
+    Object[] oldBuckets = this.buckets;
+    // Create a new table of that size.
+    this.buckets = new Object[newSize];
+    // Move all buckets from the old table to their appropriate
+    // location in the new table.
+    for (int i = 0; i < oldBuckets.length; i++) {
+      if(oldBuckets[i] != null){
+        @SuppressWarnings("unchecked")
+        int newloc = find(((ArrayList<Pair<K,V>>)oldBuckets[i]).get(0).key());
+        this.buckets[newloc] = oldBuckets[i]; 
+      }
+    } // for
   } // expand()
 
   /**
